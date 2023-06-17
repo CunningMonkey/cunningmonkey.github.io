@@ -1,0 +1,821 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/wukong.png">
+  <link rel="icon" href="/img/wukong.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="巨型忍者">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="MIT missing-semester课程笔记，命令行部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔记-missing-semester-command-line">
+<meta property="og:url" content="http://example.com/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/index.html">
+<meta property="og:site_name" content="巨型忍者的blog">
+<meta property="og:description" content="MIT missing-semester课程笔记，命令行部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/ssh-localforward.png">
+<meta property="og:image" content="http://example.com/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/ssh-remoteforward.png">
+<meta property="article:published_time" content="2023-06-02T14:22:25.000Z">
+<meta property="article:modified_time" content="2023-06-16T14:37:44.436Z">
+<meta property="article:author" content="巨型忍者">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="missing-semester">
+<meta property="article:tag" content="tmux">
+<meta property="article:tag" content="shell">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/ssh-localforward.png">
+  
+  
+  <title>笔记-missing-semester-command-line - 巨型忍者的blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","app_key":"cy0fljFxBVl5aUF28jEPkW6p","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>巨型忍者的blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="笔记-missing-semester-command-line"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-02 22:22" pubdate>
+          2023年6月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          57 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">笔记-missing-semester-command-line</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="任务控制"><a href="#任务控制" class="headerlink" title="任务控制"></a>任务控制</h1><h2 id="杀死进程"><a href="#杀死进程" class="headerlink" title="杀死进程"></a>杀死进程</h2><p>在命令行中对进程的控制往往使用SIGNAL的形式<br>Ctrl-C往往用来发出SIGINT的信号，中断当前进程的执行<br>可以在程序中捕获该信号，自定义处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-keyword">import</span> signal, time<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">handler</span>(<span class="hljs-params">signum, time</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\nI got a SIGINT, but I am not stopping&quot;</span>)<br><br>signal.signal(signal.SIGINT, handler)<br>i = <span class="hljs-number">0</span><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    time.sleep(<span class="hljs-number">.1</span>)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\r&#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(i), end=<span class="hljs-string">&quot;&quot;</span>)<br>    i += <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+<p>此时会忽略Ctrl-C，可以使用Ctrl-&#x2F;的方式发出SIGQUIT信号，来结束进程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">python sigint.py</span><br>24^C<br>I got a SIGINT, but I am not stopping<br>26^C<br>I got a SIGINT, but I am not stopping<br>30^\[1]    39913 quit       python sigint.py<br></code></pre></td></tr></table></figure>
+<p>更常用的结束进程的信号是SIGTERM，就是我们熟悉的kill命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">kill -TERM &lt;PID&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="暂停和后台运行进程"><a href="#暂停和后台运行进程" class="headerlink" title="暂停和后台运行进程"></a>暂停和后台运行进程</h2><p>SIGSTOP信号用来暂停进程，终端输入为<strong>Ctrl-Z</strong><br>进程被暂停后，可以使用<strong>fg</strong>、<strong>bg</strong>来在前台或者后台继续运行<br><strong>jobs</strong>可以查看当前终端相关的进程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">❯ sleep 1000<br>^Z<br>[1]  + 1154 suspended  sleep 1000<br>❯ jobs<br>[1]  + suspended  sleep 1000<br>❯ fg<br>[1]  + 1154 continued  sleep 1000<br>^Z<br>[1]  + 1154 suspended  sleep 1000<br>❯ bg<br>[1]  + 1154 continued  sleep 1000<br>❯ jobs<br>[1]  + running    sleep 1000<br></code></pre></td></tr></table></figure>
+
+<p>可以使用jobs展示的进程的标号来指定进程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sleep</span> 1000</span><br>^Z<br>[1]  + 18653 suspended  sleep 1000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">nohup</span> <span class="hljs-built_in">sleep</span> 2000 &amp;</span><br>[2] 18745<br>appending output to nohup.out<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br>[1]  + suspended  sleep 1000<br>[2]  - running    nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">bg</span> %1</span><br>[1]  - 18653 continued  sleep 1000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br>[1]  - running    sleep 1000<br>[2]  + running    nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">kill</span> -STOP %1</span><br>[1]  + 18653 suspended (signal)  sleep 1000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br>[1]  + suspended (signal)  sleep 1000<br>[2]  - running    nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">kill</span> -SIGHUP %1</span><br>[1]  + 18653 hangup     sleep 1000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br>[2]  + running    nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">kill</span> -SIGHUP %2</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br>[2]  + running    nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">kill</span> %2</span><br>[2]  + 18745 terminated  nohup sleep 2000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">jobs</span></span><br></code></pre></td></tr></table></figure>
+<p>还可以发送SIGKILL信号来结束进程，该信号无法被进程捕获，而是会直接杀死进程，但是可能会导致其子进程变成孤儿进程</p>
+<h1 id="终端复用-tmux"><a href="#终端复用-tmux" class="headerlink" title="终端复用-tmux"></a>终端复用-tmux</h1><p>Session包含多个Window，window包含多个pane</p>
+<h2 id="我的配置"><a href="#我的配置" class="headerlink" title="我的配置"></a>我的配置</h2><figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig"><span class="hljs-string">set</span> -<span class="hljs-string">g</span> <span class="hljs-string">prefix</span> <span class="hljs-string">C-s</span><br><span class="hljs-string">unbind</span> <span class="hljs-string">C-b</span><br><br><span class="hljs-string">set</span> -<span class="hljs-string">sg</span> <span class="hljs-string">escape-time</span> <span class="hljs-string">10</span><br><br><span class="hljs-comment"># 显示更直观的窗口名称</span><br><span class="hljs-built_in">set-option</span> -<span class="hljs-string">g</span> <span class="hljs-string">status-justify</span> <span class="hljs-string">&quot;left&quot;</span><br><span class="hljs-built_in">set-option</span> -<span class="hljs-string">g</span> <span class="hljs-string">status-left-length</span> <span class="hljs-string">32</span><br><span class="hljs-built_in">set-option</span> -<span class="hljs-string">g</span> <span class="hljs-string">status-left</span> <span class="hljs-string">&quot;#[fg=red]#I: #W&quot;</span><br><br><span class="hljs-comment"># 设置窗口列表颜色</span><br><span class="hljs-built_in">set-window-option</span> -<span class="hljs-string">g</span> <span class="hljs-string">window-status-current-style</span> <span class="hljs-string">bg</span>=<span class="hljs-string">blue</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Sessions"><a href="#Sessions" class="headerlink" title="Sessions"></a>Sessions</h2><p>a session is an independent workspace with one or more windows  </p>
+<p><code>tmux</code> 创建一个新的session</p>
+<p><code>tmux new -s NAME</code> 创建一个名称为NAME的session  </p>
+<p><code>tmux ls</code> 查看当前所有的session </p>
+<p><code> &lt;C-b> d </code> 推出当前的session（不会销毁）</p>
+<p><code>tmux a</code> 连接上一个session. 使用 <strong>-t</strong> 可以指定具体的session</p>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p>Equivalent to tabs in editors or browsers, they are visually separate parts of the same session</p>
+<p><code>&lt;C-b&gt; c</code>   创建一个window.  </p>
+<p><code>&lt;C-d&gt;  </code>   关闭当前的window </p>
+<p><code>&lt;C-b&gt; N</code>   前往第N个window  </p>
+<p><code>&lt;C-b&gt; p</code>   前往上一个window  </p>
+<p><code>&lt;C-b&gt; n</code>   前往下一个window  </p>
+<p><code>&lt;C-b&gt; ,</code>  更改当前的window的名称  </p>
+<p><code>&lt;C-b&gt; w</code> 列出当前所有的window</p>
+<h2 id="Panes"><a href="#Panes" class="headerlink" title="Panes"></a>Panes</h2><p>Like vim splits, panes let you have multiple shells in the same visual display.</p>
+<p><code>&lt;C-b&gt; &quot;</code> 水平分割当前的pane </p>
+<p><code>&lt;C-b&gt; %</code> 垂直分割当前的pane</p>
+<p><code>&lt;C-b&gt; &lt;direction&gt;</code> 在pane之间导航  </p>
+<p><code>&lt;C-b&gt; z</code> 缩放当前的pane  </p>
+<p><code>&lt;C-b&gt; [</code> Start scrollback. You can then press <space> to start a selection and <enter> to copy that selection.  </p>
+<p><code>&lt;C-b&gt; &lt;space&gt;</code> Cycle through pane arrangements.  </p>
+<h2 id="自定义"><a href="#自定义" class="headerlink" title="自定义"></a>自定义</h2><p><a target="_blank" rel="noopener" href="https://www.hamvocke.com/blog/a-guide-to-customizing-your-tmux-conf/">https://www.hamvocke.com/blog/a-guide-to-customizing-your-tmux-conf/</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">change the prefix from <span class="hljs-string">&#x27;C-b&#x27;</span> to <span class="hljs-string">&#x27;C-a&#x27;</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">(remap capslock to CTRL <span class="hljs-keyword">for</span> easy access)</span><br>unbind C-b<br>set -g prefix C-a<br>bind C-a send-prefix<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">start with window 1 (instead of 0)</span><br>set -g base-index 1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">start with pane 1</span><br>set -g pane-base-index 1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">split</span> panes using | and -, make sure they open <span class="hljs-keyword">in</span> the same path</span><br>bind | split-window -h -c &quot;#&#123;pane_current_path&#125;&quot;<br>bind - split-window -v -c &quot;#&#123;pane_current_path&#125;&quot;<br><br>unbind &#x27;&quot;&#x27;<br>unbind %<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">open new windows <span class="hljs-keyword">in</span> the current path</span><br>bind c new-window -c &quot;#&#123;pane_current_path&#125;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">reload config file</span><br>bind r source-file ~/.tmux.conf<br><br>unbind p<br>bind p previous-window<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">shorten <span class="hljs-built_in">command</span> delay</span><br>set -sg escape-time 1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">don<span class="hljs-string">&#x27;t rename windows automatically</span></span><br>set -g allow-rename off<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">mouse control (clickable windows, panes, resizable panes)</span></span><br>set -g mouse on<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">Use Alt-arrow keys without prefix key to switch panes</span></span><br>bind -n M-Left select-pane -L<br>bind -n M-Right select-pane -R<br>bind -n M-Up select-pane -U<br>bind -n M-Down select-pane -D<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">enable vi mode keys</span></span><br>set-window-option -g mode-keys vi<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">set default terminal mode to 256 colors</span></span><br>set -g default-terminal &quot;screen-256color&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">present a menu of URLs to open from the visible pane. sweet.</span></span><br>bind u capture-pane \;\<br>    save-buffer /tmp/tmux-buffer \;\<br>    split-window -l 10 &quot;urlview /tmp/tmux-buffer&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-string">#####################</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-string">## DESIGN CHANGES ###</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-string">#####################</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">loud or quiet?</span></span><br>set -g visual-activity off<br>set -g visual-bell off<br>set -g visual-silence off<br>setw -g monitor-activity off<br>set -g bell-action none<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string"> modes</span></span><br>setw -g clock-mode-colour colour5<br>setw -g mode-style &#x27;fg=colour11 bg=colour16 bold&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">panes</span></span><br>set -g pane-border-style &#x27;fg=colour12 bg=colour0 bold&#x27;<br>set -g pane-active-border-style &#x27;bg=colour0 fg=colour5 bold&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">statusbar</span></span><br>set -g status-position bottom<br>set -g status-justify left<br>set -g status-style &#x27;bg=colour234 fg=colour4&#x27;<br>set -g status-left &#x27;&#x27;<br>set -g status-right &#x27;#[fg=colour16,bg=colour245] %d/%m #[fg=colour16,bg=colour250] %H:%M:%S &#x27;<br>set -g status-right-length 50<br>set -g status-left-length 30<br><br>setw -g window-status-current-style &#x27;fg=colour7 bg=colour240 bold&#x27;<br>setw -g window-status-current-format &#x27; #[fg=colour51]#I #[fg=colour7]#W#[fg=colour51]#F &#x27;<br><br>setw -g window-status-style &#x27;fg=colour248 bg=colour0&#x27;<br>setw -g window-status-format &#x27; #[fg=colour3]#I #[fg=colour248]#W#[fg=colour3]#F &#x27;<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">setw -g window-status-format &#x27;</span> <span class="hljs-comment">#I #[fg=colour7]#W#[fg=colour244]#F &#x27;</span></span><br><br>setw -g window-status-bell-style &#x27;fg=colour255 bg=colour1 bold&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">messages</span><br>set -g message-style &#x27;fg=colour0 bg=colour4 bold&#x27;<br></code></pre></td></tr></table></figure>
+
+<h1 id="别名-Aliases"><a href="#别名-Aliases" class="headerlink" title="别名-Aliases"></a>别名-Aliases</h1><p>将一些冗长的命令使用别名表示</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">alias</span> alias_name=<span class="hljs-string">&quot;command_to_alias arg1 arg2&quot;</span><br></code></pre></td></tr></table></figure>
+<p>一些示例</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># Make shorthands for common flags</span><br><span class="hljs-built_in">alias</span> ll=<span class="hljs-string">&quot;ls -lh&quot;</span><br><br><span class="hljs-comment"># Save a lot of typing for common commands</span><br><span class="hljs-built_in">alias</span> gs=<span class="hljs-string">&quot;git status&quot;</span><br><span class="hljs-built_in">alias</span> gc=<span class="hljs-string">&quot;git commit&quot;</span><br><span class="hljs-built_in">alias</span> v=<span class="hljs-string">&quot;vim&quot;</span><br><br><span class="hljs-comment"># Save you from mistyping</span><br><span class="hljs-built_in">alias</span> sl=<span class="hljs-built_in">ls</span><br><br><span class="hljs-comment"># Overwrite existing commands for better defaults</span><br><span class="hljs-built_in">alias</span> <span class="hljs-built_in">mv</span>=<span class="hljs-string">&quot;mv -i&quot;</span>           <span class="hljs-comment"># -i prompts before overwrite</span><br><span class="hljs-built_in">alias</span> <span class="hljs-built_in">mkdir</span>=<span class="hljs-string">&quot;mkdir -p&quot;</span>     <span class="hljs-comment"># -p make parent dirs as needed</span><br><span class="hljs-built_in">alias</span> <span class="hljs-built_in">df</span>=<span class="hljs-string">&quot;df -h&quot;</span>           <span class="hljs-comment"># -h prints human readable format</span><br><br><span class="hljs-comment"># Alias can be composed</span><br><span class="hljs-built_in">alias</span> la=<span class="hljs-string">&quot;ls -A&quot;</span><br><span class="hljs-built_in">alias</span> lla=<span class="hljs-string">&quot;la -l&quot;</span><br><br><span class="hljs-comment"># To ignore an alias run it prepended with \</span><br>\<span class="hljs-built_in">ls</span><br><span class="hljs-comment"># Or disable an alias altogether with unalias</span><br><span class="hljs-built_in">unalias</span> la<br><br><span class="hljs-comment"># To get an alias definition just call it with alias</span><br><span class="hljs-built_in">alias</span> ll<br><span class="hljs-comment"># Will print ll=&#x27;ls -lh&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="SSH"><a href="#SSH" class="headerlink" title="SSH"></a>SSH</h1><h2 id="SCP"><a href="#SCP" class="headerlink" title="SCP"></a>SCP</h2><h2 id="端口转发"><a href="#端口转发" class="headerlink" title="端口转发"></a>端口转发</h2><p>分为两种情形：  </p>
+<h3 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h3><p>将远程服务器上某个端口的流量转发到本地的端口中，可以直接通过访问本地端口的形式访问远程端口。<br><img src="/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/ssh-localforward.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<!-- ![img](ssh-localforward2.png) -->
+
+<p>如假设您希望访问远程服务器上的Web应用程序，并且该应用程序在远程服务器的端口 8080 上运行。您可以通过本地端口转发将远程服务器的端口转发到本地计算机的某个端口，以便在本地浏览器中访问该应用程序。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">ssh -L 8888:localhost:8080 user@remote-server<br></code></pre></td></tr></table></figure>
+<p>这将建立一个 SSH 连接到远程服务器，并将本地计算机的端口 8888 与远程服务器的端口 8080 绑定。现在，您可以在本地浏览器中访问 <a href="http://localhost:8888，实际上访问的是远程服务器上的应用程序。">http://localhost:8888，实际上访问的是远程服务器上的应用程序。</a></p>
+<h3 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h3><p>将本地机器的某个端口的流量转发到远程服务器的某个端口，其他用户可以通过访问远程服务器的该端口来访问本地机器<br><img src="/2023/06/02/%E7%AC%94%E8%AE%B0-missing-semester-command-line/ssh-remoteforward.png" srcset="/img/loading.gif" lazyload alt="img">  </p>
+<!-- ![img](ssh-remoteforward2.png) -->
+
+<p>如：<br>假设您希望将本地计算机上的 Web 服务器（运行在端口 80）暴露给远程服务器上的用户。您可以使用远程端口转发将本地计算机的端口转发到远程服务器的某个端口，让远程用户可以通过远程服务器访问您的 Web 服务器。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">ssh -R 8888:localhost:80 user@remote-server<br></code></pre></td></tr></table></figure>
+<p>这将建立一个 SSH 连接到远程服务器，并将远程服务器的端口 8888 与本地计算机的端口 80 绑定。现在，远程服务器上的用户可以通过访问 <a target="_blank" rel="noopener" href="http://remote-server:8888/">http://remote-server:8888</a> 来访问您本地计算机上运行的 Web 服务器。</p>
+<p>可以通过配置.ssh&#x2F;config来配置一个端口转发的功能</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh">Host vm<br>    User foobar<br>    HostName 172.16.174.141<br>    Port 2222<br>    IdentityFile ~/.ssh/id_ed25519<br>    LocalForward 9999 localhost:8888<br></code></pre></td></tr></table></figure>
+<p>然后使用<code>ssh vm</code>连接，就会连接到远程服务器，并且将远程的9999端口转发到本地的8888端口<br>如果不需要打开ssh连接界面，只是希望开启转发功能，可以使用<code>ssh -N vm</code></p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" class="category-chain-item">课程笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/missing-semester/">#missing-semester</a>
+      
+        <a href="/tags/tmux/">#tmux</a>
+      
+        <a href="/tags/shell/">#shell</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>笔记-missing-semester-command-line</div>
+      <div>http://example.com/2023/06/02/笔记-missing-semester-command-line/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>巨型忍者</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月2日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/03/%E7%AC%94%E8%AE%B0-missing-semester-vim/" title="笔记-missing-semester-vim">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">笔记-missing-semester-vim</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/01/%E7%AC%94%E8%AE%B0-missing-semester-shell/" title="笔记-missing-semester-shell">
+                        <span class="hidden-mobile">笔记-missing-semester-shell</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","appKey":"cy0fljFxBVl5aUF28jEPkW6p","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,945 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/wukong.png">
+  <link rel="icon" href="/img/wukong.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="巨型忍者">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="MIT missing-semester课程笔记 Git部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="笔记-missing-semester-git">
+<meta property="og:url" content="http://example.com/2023/06/04/%E7%AC%94%E8%AE%B0-missing-semester-git/index.html">
+<meta property="og:site_name" content="巨型忍者的blog">
+<meta property="og:description" content="MIT missing-semester课程笔记 Git部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-04T15:14:07.000Z">
+<meta property="article:modified_time" content="2023-06-16T14:37:44.436Z">
+<meta property="article:author" content="巨型忍者">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="missing-semester">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>笔记-missing-semester-git - 巨型忍者的blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","app_key":"cy0fljFxBVl5aUF28jEPkW6p","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>巨型忍者的blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="笔记-missing-semester-git"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-04 23:14" pubdate>
+          2023年6月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          151 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">笔记-missing-semester-git</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>从底层的数据结构介绍Git的工作原理，分析.git文件夹存储的内容的含义<br>git的提交历史可以看为一个有向无环图  </p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs brainfuck"><span class="hljs-comment">o</span> &lt;<span class="hljs-literal">--</span> <span class="hljs-comment">o</span> &lt;<span class="hljs-literal">--</span> <span class="hljs-comment">o</span> &lt;<span class="hljs-literal">--</span> <span class="hljs-comment">o</span> &lt;<span class="hljs-literal">----</span> <span class="hljs-comment">o</span><br>            <span class="hljs-comment">^            /</span><br>             <span class="hljs-comment">\          v</span><br>              <span class="hljs-literal">---</span> <span class="hljs-comment">o</span> &lt;<span class="hljs-literal">--</span> <span class="hljs-comment">o</span><br><br></code></pre></td></tr></table></figure>
+<p><em>最左侧为起始提交，从左往右的顺序看，除了第一个提交，其他提交都有一个父提交</em></p>
+<h1 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h1><p>Git将文件目录称为tree，将文件称为blob  </p>
+<h2 id="blob"><a href="#blob" class="headerlink" title="blob"></a>blob</h2><p>blob就是对应文件的二进制数组，每次提交中的每个文件都会对应一个blob</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ada">// 文件就是一组数据<br><span class="hljs-keyword">type</span> <span class="hljs-type">blob </span>= <span class="hljs-keyword">array</span>&lt;byte&gt;<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="tree"><a href="#tree" class="headerlink" title="tree"></a>tree</h2><p>tree就是文件夹，父文件夹和子文件夹都是tree，通过指针的形式将文件夹连接起来，形式与文件系统中的目录树一致</p>
+<blockquote>
+<p>可以将blob视为叶子节点，tree可以是非叶子节点或者叶子节点</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 一个包含文件和目录的目录</span><br><span class="hljs-keyword">type</span> tree = <span class="hljs-keyword">map</span>&lt;<span class="hljs-type">string</span>, tree | blob&gt;<br></code></pre></td></tr></table></figure>
+<p>在数据结构中，将tree表示为一个map，其中的内容是它的子节点或者叶子节点</p>
+<h2 id="commit"><a href="#commit" class="headerlink" title="commit"></a>commit</h2><p>commit就是提交记录，每次执行<code>git commit</code>都会生成一个commit的对象</p>
+<figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs fsharp"><span class="hljs-comment">// 每个提交都包含一个父提交，元数据和顶层树（快照）</span><br><span class="hljs-keyword">type</span> <span class="hljs-title class_">commit</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">struct</span> &#123;<br>    parent<span class="hljs-operator">:</span> <span class="hljs-type">array</span><span class="hljs-operator">&lt;</span>commit<span class="hljs-operator">&gt;</span><br>    author<span class="hljs-operator">:</span> <span class="hljs-type">string</span><br>    message<span class="hljs-operator">:</span> <span class="hljs-type">string</span><br>    snapshot<span class="hljs-operator">:</span> tree<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>snapshot就是对于当前提交的一个快照，当前提交情况下的整个目录及文件的情况，所以是tree类型的，表示当前工作目录的文件树  </p>
+<blockquote>
+<p>一个反直觉的事情：git并没有直接记录每个文件的修改历史，而是会记录每个commit的所有文件的内容即blob，如果某个文件在多个commit中都未修改，这些commit的tree会使用同一份blob</p>
+</blockquote>
+<blockquote>
+<p>git通过比较同一个文件的多个版本的blob的完整内容来获得修改记录，而不是通过修改记录来从旧版本文件推理得到新文件</p>
+</blockquote>
+<h2 id="objects"><a href="#objects" class="headerlink" title="objects"></a>objects</h2><p>object是git中blob、tree、commit的统称</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">type</span> <span class="hljs-keyword">object</span> = blob | tree | <span class="hljs-keyword">commit</span><br></code></pre></td></tr></table></figure>
+<p>所有的object被当成一个map来存储，使用object的哈希值作为键</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">objects = <span class="hljs-built_in">map</span>&lt;string, <span class="hljs-built_in">object</span>&gt;<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">store</span>(<span class="hljs-params"><span class="hljs-built_in">object</span></span>):<br>    <span class="hljs-built_in">id</span> = sha1(<span class="hljs-built_in">object</span>)<br>    objects[<span class="hljs-built_in">id</span>] = <span class="hljs-built_in">object</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">load</span>(<span class="hljs-params"><span class="hljs-built_in">id</span></span>):<br>    <span class="hljs-keyword">return</span> objects[<span class="hljs-built_in">id</span>]<br></code></pre></td></tr></table></figure>
+
+<h2 id="references"><a href="#references" class="headerlink" title="references"></a>references</h2><p>对于用户而言，使用hash来访问object的方式过于困难，git提供了reference的方式，来访问commit的hash</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">references = <span class="hljs-built_in">map</span>&lt;string, string&gt;<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">update_reference</span>(<span class="hljs-params">name, <span class="hljs-built_in">id</span></span>):<br>    references[name] = <span class="hljs-built_in">id</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">read_reference</span>(<span class="hljs-params">name</span>):<br>    <span class="hljs-keyword">return</span> references[name]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">load_reference</span>(<span class="hljs-params">name_or_id</span>):<br>    <span class="hljs-keyword">if</span> name_or_id <span class="hljs-keyword">in</span> references:<br>        <span class="hljs-keyword">return</span> load(references[name_or_id])<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> load(name_or_id)<br></code></pre></td></tr></table></figure>
+<p>比如常用的<code>master</code>, <code>HEAD</code>等都是reference  </p>
+<h2 id="Repository"><a href="#Repository" class="headerlink" title="Repository"></a>Repository</h2><p>可以简单的将git仓库看作是objects和reference的组合  </p>
+<h2 id="Staging-area"><a href="#Staging-area" class="headerlink" title="Staging area"></a>Staging area</h2><p>暂存区，将指定的修改加入到暂存区，然后commit，这个commit的snapshot就会只包含对该文件的修改后的内容的记录</p>
+<h1 id="Git目录"><a href="#Git目录" class="headerlink" title="Git目录"></a>Git目录</h1><p>一个空的初始化的git仓库目录为： </p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-class">.git</span><br>├── HEAD<br>├── branches<br>├── config<br>├── description<br>├── hooks<br>│   ├── applypatch-msg<span class="hljs-selector-class">.sample</span><br>│   ├── commit-msg<span class="hljs-selector-class">.sample</span><br>│   ├── fsmonitor-watchman<span class="hljs-selector-class">.sample</span><br>│   ├── post-update<span class="hljs-selector-class">.sample</span><br>│   ├── pre-applypatch<span class="hljs-selector-class">.sample</span><br>│   ├── pre-commit<span class="hljs-selector-class">.sample</span><br>│   ├── pre-merge-commit<span class="hljs-selector-class">.sample</span><br>│   ├── pre-push<span class="hljs-selector-class">.sample</span><br>│   ├── pre-rebase<span class="hljs-selector-class">.sample</span><br>│   ├── pre-receive<span class="hljs-selector-class">.sample</span><br>│   ├── prepare-commit-msg<span class="hljs-selector-class">.sample</span><br>│   └── update<span class="hljs-selector-class">.sample</span><br>├── info<br>│   └── exclude<br>├── objects<br>│   ├── info<br>│   └── pack<br>└── refs<br>    ├── heads<br>    └── tags<br></code></pre></td></tr></table></figure>
+<p><code>HEAD</code>：指的是当前所在分支的符号引用（symbolic reference），它指示当前工作树（working tree）所在的位置。<br><code>branchs</code> ：这个文件夹存储了本地分支的引用。每个分支都有一个相应的文件，其中包含指向分支最新提交的引用。  </p>
+<p><code>config</code>：这个文件保存了仓库的配置信息，包括用户名、邮箱、远程仓库的URL等。可以使用<code>git config</code>命令来修改和查看这些配置。</p>
+<p><code>description</code>：这是一个可选文件，用于描述仓库的作用和内容。当使用gitweb等工具浏览仓库时，该文件的内容可能会显示在仓库的描述信息中。</p>
+<p><code>hooks</code>：这个文件夹包含一些示例钩子脚本（hook scripts）。Git钩子是在特定的Git操作（如提交、推送等）发生时自动执行的脚本。</p>
+<p><code>info/exclude</code>：这是一个可选文件，用于指定不希望被纳入版本控制的文件和目录。与.gitignore类似，但作用范围只限于本地仓库。</p>
+<p><code>objects</code>：这个文件夹是Git对象数据库的核心（上文提到的数据结构）。它包含了所有的对象，包括提交（commit）、树（tree）和文件（blob）对象等。</p>
+<p><code>objects/info</code>：这个目录包含了一些辅助索引文件，用于提高Git对象的查找性能</p>
+<p><code>objects/pack</code>：这个目录包含了Git对象数据库中的打包对象文件（pack files）。打包对象文件是一种高度压缩和优化的二进制文件，用于存储多个对象。它们以.pack为扩展名，并使用特定的压缩算法和索引结构。打包对象文件在Git中被用来节省磁盘空间和提高性能。</p>
+<p><code>refs/heads</code>：这个文件夹包含了本地分支的引用。每个分支都有一个相应的文件，其中包含指向分支最新提交的引用。</p>
+<p><code>refs/tags</code>：这个文件夹包含了标签（tag）的引用。每个标签都有一个相应的文件，其中包含指向标签的引用。</p>
+<p>这些文件中主要需要留意的是<strong>objects</strong>和<strong>refs</strong>这两个文件夹。  </p>
+<p><strong>前文提到的object都存储在objects文件夹中，其索引为hash，值为object的内容，git实现的方式是使用hash的前两位作为文件夹名称，后面的内容作为该文件夹下的文件名，文件的内容为object的内容。这样做的目的是便于组织文件和加快索引。</strong></p>
+<h1 id="Git命令"><a href="#Git命令" class="headerlink" title="Git命令"></a>Git命令</h1><h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
+<li><code>git help &lt;command&gt;</code>: 获取帮助</li>
+<li><code>git init</code>: 创建git仓库</li>
+<li><code>git status</code>: 查看当前工作区状态</li>
+<li><code>git add &lt;filename&gt;</code>: 将文件添加到暂存区</li>
+<li><code>git commit</code>: 提交</li>
+<li><code>git log</code>: 查看提交历史</li>
+<li><code>git log --all --graph --decorate</code>: 以有向无环图的形式查看提交历史</li>
+<li><code>git diff &lt;filename&gt;</code>: 查看文件与暂存区中对应记录之间的差别</li>
+<li><code>git diff &lt;revision&gt; &lt;filename&gt;</code>: 查看文件与某次提交之间的差别，revision可以是reference如HEAD，也可以是commit的hash值</li>
+<li><code>git checkout &lt;revision&gt;</code>: 将HEAD与当前分支的head切换到历史的某次提交</li>
+</ul>
+<h2 id="分支与合并"><a href="#分支与合并" class="headerlink" title="分支与合并"></a>分支与合并</h2><ul>
+<li><code>git branch</code>: 查看当前所有的分支</li>
+<li><code>git branch &lt;name&gt;</code>: 创建一个分支</li>
+<li><code>git checkout -b &lt;name&gt;</code>: 创建一个分支并切换到该分支</li>
+<li><code>git merge &lt;revision&gt;</code>: 将对应的提交的内容合并到当前的分支</li>
+<li><code>git mergetool</code>: 使用工具来解决合并冲突</li>
+<li><code>git rebase</code>: rebase set of patches onto a new base</li>
+</ul>
+<h2 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h2><ul>
+<li><p><code>git remote</code>: 查看远端仓库</p>
+</li>
+<li><p><code>git remote add &lt;name&gt; &lt;url&gt;</code>: 添加一个远端仓库</p>
+</li>
+<li><p><code>git push &lt;remote&gt; &lt;local branch&gt;:&lt;remote branch&gt;</code>: 将本地的分支推送到远端，并更新远端的分支</p>
+</li>
+<li><p><code>git branch --set-upstream-to=&lt;remote&gt;/&lt;remote branch&gt;</code>: set up correspondence between local and remote branch</p>
+<blockquote>
+<p>git branch –set-upstream-to&#x3D;&lt;remote&gt;&#x2F;&lt;remote branch&gt; 命令用于设置当前分支与远程分支之间的追踪关系，也称为 upstream。<br>具体来说，–set-upstream-to&#x3D;&lt;remote&gt;&#x2F;&lt;remote branch&gt; 参数用于将当前分支与指定的远程分支进行关联。这样，Git 将会跟踪当前分支与远程分支之间的差异，使得后续的 Git 操作可以更加方便和自动化，例如 git push 和 git pull。<br>设置 upstream 之后，可以通过以下方式获得一些好处：</p>
+<ol>
+<li>默认推送和拉取：一旦设置了 upstream，你可以直接使用 git push 和 git pull 命令，而不需要指定远程分支的名称和位置。Git 会自动推送和拉取与当前分支关联的远程分支。</li>
+<li>显示状态信息：使用 git status 命令时，Git 会显示当前分支与 upstream 分支之间的差异，告诉你当前分支落后于远程分支的提交。</li>
+<li>更好的协作：当你与其他开发者共享远程仓库时，设置 upstream 可以更好地追踪彼此的进展，并确保及时更新和合并代码。</li>
+</ol>
+<p>在使用 –set-upstream-to 参数时，&lt;remote&gt; 是指远程仓库的名称（通常是 “origin”），&lt;remote branch&gt; 是指远程分支的名称。例如，origin&#x2F;master 表示远程仓库 “origin” 的 “master” 分支。<br>总结来说，git branch –set-upstream-to&#x3D;&lt;remote&gt;&#x2F;&lt;remote branch&gt; 命令用于将当前分支与指定的远程分支进行关联，使得 Git 可以跟踪差异、自动化推送和拉取，并提供更好的协作和状态信息。</p>
+</blockquote>
+</li>
+<li><p><code>git fetch</code>: 从远端获取objects和reference</p>
+</li>
+<li><p><code>git pull</code>: 等同于</p>
+<ul>
+<li>git fetch</li>
+<li>git merge</li>
+</ul>
+</li>
+<li><p><code>git clone</code>: 下载远程仓库</p>
+</li>
+</ul>
+<h2 id="撤销"><a href="#撤销" class="headerlink" title="撤销"></a>撤销</h2><ul>
+<li><code>git commit --amend</code>: 将修改合并到上一次提交</li>
+<li><code>git reset HEAD &lt;file&gt;</code>: 放弃对某个文件的stage（暂存），即将该文件的状态变为当前提交的状态，但不会放弃该文件的修改，只是将其从暂存区中去除</li>
+<li><code>git checkout -- &lt;file&gt;</code>: 放弃对某个文件的修改</li>
+</ul>
+<h2 id="高级"><a href="#高级" class="headerlink" title="高级"></a>高级</h2><ul>
+<li><code>git config</code>: 修改git的配置 </li>
+<li><code>git clone --depth=1</code>: 只克隆最新的一次提交</li>
+<li><code>git add -p</code>: 交互式的页面查看每一次提交，选择是否stage</li>
+<li><code>git rebase -i</code>: interactive rebasing</li>
+<li><code>git blame</code>: 查看每一行内容的修改者</li>
+<li><code>git stash</code>: temporarily remove modifications to working directory</li>
+<li><code>git bisect</code>: binary search history (e.g. for regressions)</li>
+<li><code>.gitignore</code>: 声明不需要记录的文件</li>
+</ul>
+<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>这节通过实验来展示前文介绍的内容<br>由于本文重点不是介绍Git的使用，而是分析Git的实现原理，因此介绍一下在后面实验环节会用到的主要的Git命令</p>
+<ul>
+<li><code>git add xx</code>：将文件加入到Staging area中，会在初始的git仓库中创建一个index文件，用来指明当前跟踪的文件  </li>
+<li><code>git log --all --graph --decorate</code>：使用图的方式展示所有分支的提交历史  </li>
+<li><code>git cat-file -p hashxx</code>：使用hash值查看git的object的内容  </li>
+<li><code>git ls-files --stage</code>：查看暂存区中的文件列表  </li>
+<li><code>git log --oneline</code>：尽可能简介地打印提交历史</li>
+<li><code>git checkout xx</code>：修改HEAD指向的commit的位置</li>
+<li><code>git reset --hard xx</code>：修改当前分支的head指向的commit的位置，并丢弃所有未commit的修改</li>
+</ul>
+<ol>
+<li>创建git仓库<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs sh">&gt; <span class="hljs-built_in">mkdir</span> git_test<br>&gt; <span class="hljs-built_in">cd</span> git_test<br>&gt; git init<br>&gt; tree .git<br>.git<br>├── HEAD<br>├── branches<br>├── config<br>├── description<br>├── hooks<br>│   ├── applypatch-msg.sample<br>│   ├── commit-msg.sample<br>│   ├── fsmonitor-watchman.sample<br>│   ├── post-update.sample<br>│   ├── pre-applypatch.sample<br>│   ├── pre-commit.sample<br>│   ├── pre-merge-commit.sample<br>│   ├── pre-push.sample<br>│   ├── pre-rebase.sample<br>│   ├── pre-receive.sample<br>│   ├── prepare-commit-msg.sample<br>│   └── update.sample<br>├── info<br>│   └── exclude<br>├── objects<br>│   ├── info<br>│   └── pack<br>└── refs<br>    ├── heads<br>    └── tags<br></code></pre></td></tr></table></figure></li>
+<li>创建新的文件并跟踪该文件<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs sh">&gt; <span class="hljs-built_in">echo</span> hello world! &gt; hello.txt<br>&gt; git add hello.txt<br>&gt; tree .git<br>.git<br>├── HEAD<br>├── branches<br>├── config<br>├── description<br>├── hooks<br>│   ├── applypatch-msg.sample<br>│   ├── commit-msg.sample<br>│   ├── fsmonitor-watchman.sample<br>│   ├── post-update.sample<br>│   ├── pre-applypatch.sample<br>│   ├── pre-commit.sample<br>│   ├── pre-merge-commit.sample<br>│   ├── pre-push.sample<br>│   ├── pre-rebase.sample<br>│   ├── pre-receive.sample<br>│   ├── prepare-commit-msg.sample<br>│   └── update.sample<br>├── index<br>├── info<br>│   └── exclude<br>├── objects<br>│   ├── a0<br>│   │   └── 423896973644771497bdc03eb99d5281615b51<br>│   ├── info<br>│   └── pack<br>└── refs<br>    ├── heads<br>    └── tags<br></code></pre></td></tr></table></figure>
+可以看到.git中出现了<code>index</code>文件，objects中出现了<code>a0/423896973644771497bdc03eb99d5281615b51</code>的文件</li>
+</ol>
+<p>查看新文件的内容  </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">&gt; git ls-files --stage   // 直接查看index内容会出现乱码，使用该命令代替<br>100644 a0423896973644771497bdc03eb99d5281615b51 0       hello.txt<br>&gt; git cat-file -p a042<br>hello world!<br></code></pre></td></tr></table></figure>
+<p>可以看到index指明了此时跟踪的hello.txt的文件<br>关于git ls-files –stage的输出，以下内容来自人见人爱的chatGPT：</p>
+<blockquote>
+<p>&lt;mode&gt;：文件的模式，通常以八进制表示。例如，100644 表示普通文件，100755 表示可执行文件。<br>&lt;object ID&gt;：文件对象的 SHA-1 哈希值。每个文件在 Git 中都有唯一的对象 ID。<br>&lt;stage number&gt;：如果文件处于冲突状态，该数字表示文件在合并过程中的阶段。一般情况下，这个数字为 0，表示文件没有冲突。<br>&lt;file path&gt;：文件的路径和名称。</p>
+</blockquote>
+<p>使用<code>git cat-file -p a042</code>可以看到blob的内容为“hello world!”   </p>
+<ol start="3">
+<li>提交修改<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs sh">&gt; git commit -m <span class="hljs-string">&quot;commit1&quot;</span><br>[master (root-commit) 2300712] commit1<br> 1 file changed, 1 insertion(+)<br> create mode 100644 hello.txt<br>&gt; git <span class="hljs-built_in">log</span><br>commit 230071204b0eb702e5519ad0cc21de8332e66749 (HEAD -&gt; master)<br>Author: xx &lt;xxxx@qq.com&gt;<br>Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>    commit1<br>&gt; tree .git<br>.git<br>├── COMMIT_EDITMSG<br>├── HEAD<br>├── branches<br>├── config<br>├── description<br>├── hooks<br>│   ├── applypatch-msg.sample<br>│   ├── commit-msg.sample<br>│   ├── fsmonitor-watchman.sample<br>│   ├── post-update.sample<br>│   ├── pre-applypatch.sample<br>│   ├── pre-commit.sample<br>│   ├── pre-merge-commit.sample<br>│   ├── pre-push.sample<br>│   ├── pre-rebase.sample<br>│   ├── pre-receive.sample<br>│   ├── prepare-commit-msg.sample<br>│   └── update.sample<br>├── index<br>├── info<br>│   └── exclude<br>├── logs<br>│   ├── HEAD<br>│   └── refs<br>│       └── heads<br>│           └── master<br>├── objects<br>│   ├── 23<br>│   │   └── 0071204b0eb702e5519ad0cc21de8332e66749<br>│   ├── 60<br>│   │   └── 09101760644963fee389fc730acc4c437edc8f<br>│   ├── a0<br>│   │   └── 423896973644771497bdc03eb99d5281615b51<br>│   ├── info<br>│   └── pack<br>└── refs<br>    ├── heads<br>    │   └── master<br>    └── tags<br></code></pre></td></tr></table></figure>
+可以看到，此时.git中出现了很多新的内容<br>logs <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ tree .git/logs<br>.git/logs<br>├── HEAD<br>└── refs<br>    └── heads<br>        └── master<br>❯ <span class="hljs-built_in">cat</span> .git/logs/HEAD<br>0000000000000000000000000000000000000000 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xx@qq.com&gt; 1685949916 +0800  commit (initial): commit1<br>❯ <span class="hljs-built_in">cat</span> .git/logs/refs/heads/master<br>0000000000000000000000000000000000000000 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685949916 +0800  commit (initial): commit1<br></code></pre></td></tr></table></figure>
+logs中记录着历史的提交，HEAD是当前所在的分支的commit位置，heads中记录着每个分支的head所在的commit位置。<br>由于当前HEAD就指向master分支的head，所以他们的内容是一样的</li>
+</ol>
+<p>objects</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ tree .git/objects<br>.git/objects<br>├── 23<br>│   └── 0071204b0eb702e5519ad0cc21de8332e66749<br>├── 60<br>│   └── 09101760644963fee389fc730acc4c437edc8f<br>├── a0<br>│   └── 423896973644771497bdc03eb99d5281615b51<br>├── info<br>└── pack<br><br>5 directories, 3 files<br>❯ git cat-file -p 2300<br>tree 6009101760644963fee389fc730acc4c437edc8f<br>author xx &lt;xxxx@qq.com&gt; 1685949916 +0800<br>committer xx &lt;xxxx@qq.com&gt; 1685949916 +0800<br><br>commit1<br>❯ git cat-file -p 6009<br>100644 blob a0423896973644771497bdc03eb99d5281615b51    hello.txt<br>❯ git cat-file -p a042<br>hello world!<br></code></pre></td></tr></table></figure>
+<p>可以看到objects中多出了两个文件夹，算上之前的a0，现在总共有三个文件夹：<br><strong>2300</strong>：<code>git log</code>输出的commit的hash值，对应着commit的object，其内容分为三部分，分别是tree、author、commitrer，其中<strong>tree</strong>就是当前commit对应的snapshop，即当前工作目录文件夹和文件的快照<br><strong>6009</strong>：就是2300中记录的tree的hash，里面记录了文件夹和文件的快照，当前工作目录只有一个hello.txt的文件，因此其内容就只有一行记录着hello.txt对应的blob，即为第2步中跟踪的blob<br><strong>a042</strong>：就是前文中提到hello.txt对应的blob  </p>
+<ol start="4">
+<li><p>二次修改并提交</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ <span class="hljs-built_in">echo</span> hello dog! &gt; hello2.txt<br>❯ git add hello2.txt<br>❯ git commit -m <span class="hljs-string">&quot;commit2&quot;</span><br>[master cd1fc67] commit2<br> 1 file changed, 1 insertion(+)<br> create mode 100644 hello2.txt<br>❯ git ls-files --stage<br>100644 a0423896973644771497bdc03eb99d5281615b51 0       hello.txt<br>100644 44677663187047b69295a69fdc074acc0ac5080e 0       hello2.txt<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate<br>* commit cd1fc67e352b54c496808bed23bb883e65d7056b (HEAD -&gt; master)<br>| Author: xx &lt;xxxx@qq.com&gt;<br>| Date:   Mon Jun 5 15:46:39 2023 +0800<br>|<br>|     commit2<br>|<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br></code></pre></td></tr></table></figure>
+<p>查看目录树</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ tree .git/objects<br>.git/objects<br>├── 23<br>│   └── 0071204b0eb702e5519ad0cc21de8332e66749<br>├── 44<br>│   └── 677663187047b69295a69fdc074acc0ac5080e<br>├── 60<br>│   └── 09101760644963fee389fc730acc4c437edc8f<br>├── a0<br>│   └── 423896973644771497bdc03eb99d5281615b51<br>├── <span class="hljs-built_in">cd</span><br>│   └── 1fc67e352b54c496808bed23bb883e65d7056b<br>├── e1<br>│   └── 5d762848fe0219401d400e75e745c4da17c64f<br>├── info<br>└── pack<br>❯ git cat-file -p cd1f<br>tree e15d762848fe0219401d400e75e745c4da17c64f<br>parent 230071204b0eb702e5519ad0cc21de8332e66749<br>author xx &lt;xxxx@qq.com&gt; 1685951199 +0800<br>committer xx &lt;xxxx@qq.com&gt; 1685951199 +0800<br><br>commit2<br>❯ git cat-file -p e15d<br>100644 blob a0423896973644771497bdc03eb99d5281615b51    hello.txt<br>100644 blob 44677663187047b69295a69fdc074acc0ac5080e    hello2.txt<br>❯ git cat-file -p 4467<br>hello dog!<br></code></pre></td></tr></table></figure>
+<p>可以看到基本的内容和第一次提交差不多，需要注意的是第二次提交的commit对应的object内容中多出了一个parent字段，记录着当前提交的父提交的hash值，通过这种方式将历史提交组成一张有向无环图  </p>
+</li>
+<li><p>checkout的底层变化</p>
+</li>
+</ol>
+<p>将HEAD切换到第一次提交的位置</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git checkout 2300<br>HEAD is now at 2300712 commit1<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate<br>* commit cd1fc67e352b54c496808bed23bb883e65d7056b (master)<br>| Author: xx &lt;xxxx@qq.com&gt;<br>| Date:   Mon Jun 5 15:46:39 2023 +0800<br>|<br>|     commit2<br>|<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749 (HEAD)<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br></code></pre></td></tr></table></figure>
+<p>此时在master的分支上，master的head指向第二次commit，但是HEAD指向了第一次commit </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ <span class="hljs-built_in">cat</span> .git/logs/HEAD<br>0000000000000000000000000000000000000000 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685949916 +0800  commit (initial): commit1<br>230071204b0eb702e5519ad0cc21de8332e66749 cd1fc67e352b54c496808bed23bb883e65d7056b xx &lt;xxxx@qq.com&gt; 1685951199 +0800  commit: commit2<br>cd1fc67e352b54c496808bed23bb883e65d7056b 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685951534 +0800  checkout: moving from master to 2300<br>❯ <span class="hljs-built_in">cat</span> .git/logs/refs/heads/master<br>0000000000000000000000000000000000000000 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685949916 +0800  commit (initial): commit1<br>230071204b0eb702e5519ad0cc21de8332e66749 cd1fc67e352b54c496808bed23bb883e65d7056b xx &lt;xxxx@qq.com&gt; 1685951199 +0800  commit: commit2<br></code></pre></td></tr></table></figure>
+<p>可以看出logs中记录了HEAD以及每个分支的head的移动记录</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git checkout master<br>Previous HEAD position was 2300712 commit1<br>Switched to branch <span class="hljs-string">&#x27;master&#x27;</span><br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate<br>* commit cd1fc67e352b54c496808bed23bb883e65d7056b (HEAD -&gt; master)<br>| Author: xx &lt;xxxx@qq.com&gt;<br>| Date:   Mon Jun 5 15:46:39 2023 +0800<br>|<br>|     commit2<br>|<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br></code></pre></td></tr></table></figure>
+
+<p><strong>可以看出checkout会将整个工作目录切换到对应提交snapshot所记录的内容，因此所有未被提交的修改的内容都会丢失</strong></p>
+<p>尝试修改master分支的head指向的commit  </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git <span class="hljs-built_in">log</span> --oneline<br>cd1fc67 (HEAD -&gt; master) commit2  <br>2300712 commit1<br>❯ <span class="hljs-built_in">echo</span> hello <span class="hljs-built_in">cat</span>! &gt; hello3.txt<br>❯ git add hello3.txt<br>❯ git reset --hard 2300712<br>HEAD is now at 2300712 commit1<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749 (HEAD -&gt; master)<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br>❯ git ls-files --stage<br>100644 a0423896973644771497bdc03eb99d5281615b51 0       hello.txt<br>❯ git status<br>On branch master<br>nothing to commit, working tree clean<br>❯ <span class="hljs-built_in">ls</span><br>hello.txt<br></code></pre></td></tr></table></figure>
+<p>可以看到commit2已经从日志中完全消失，之前添加的文件hello3.txt和hello2.txt也消失了  </p>
+<p>但是我们还是可以访问到hello2.txt以及commit2的信息！  </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ <span class="hljs-built_in">cat</span> .git/logs/refs/heads/master<br>0000000000000000000000000000000000000000 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685949916 +0800  commit (initial): commit1<br>230071204b0eb702e5519ad0cc21de8332e66749 cd1fc67e352b54c496808bed23bb883e65d7056b xx &lt;xxxx@qq.com&gt; 1685951199 +0800  commit: commit2<br>cd1fc67e352b54c496808bed23bb883e65d7056b 230071204b0eb702e5519ad0cc21de8332e66749 xx &lt;xxxx@qq.com&gt; 1685952488 +0800  reset: moving to 2300712<br>❯ git cat-file -p cd1f<br>tree e15d762848fe0219401d400e75e745c4da17c64f<br>parent 230071204b0eb702e5519ad0cc21de8332e66749<br>author xx &lt;xxxx@qq.com&gt; 1685951199 +0800<br>committer xx &lt;xxxx@qq.com&gt; 1685951199 +0800<br><br>commit2<br>❯ git cat-file -p e15d<br>100644 blob a0423896973644771497bdc03eb99d5281615b51    hello.txt<br>100644 blob 44677663187047b69295a69fdc074acc0ac5080e    hello2.txt<br>❯ git cat-file -p 4467<br>hello dog!<br></code></pre></td></tr></table></figure>
+<p>我们可以通过查看logs文件夹下记录的master的head的移动历史来找到commit2，进一步找到hello2.txt，当然这些object全都保存在objects中，不会被删除<br>此时仍然可以将HEAD恢复到commit2中   </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git checkout cd1f<br>HEAD is now at cd1fc67 commit2<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorat<br>* commit cd1fc67e352b54c496808bed23bb883e65d7056b (HEAD)<br>| Author: xx &lt;xxxx@qq.com&gt;<br>| Date:   Mon Jun 5 15:46:39 2023 +0800<br>|<br>|     commit2<br>|<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749 (master)<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br></code></pre></td></tr></table></figure>
+<p>也可以将master的head恢复到commit2中</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git checkout master<br>Switched to branch <span class="hljs-string">&#x27;master&#x27;</span><br>❯ git reset --hard cd1f<br>HEAD is now at cd1fc67 commit2<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate<br>* commit cd1fc67e352b54c496808bed23bb883e65d7056b (HEAD -&gt; master)<br>| Author: xx &lt;xxxx@qq.com&gt;<br>| Date:   Mon Jun 5 15:46:39 2023 +0800<br>|<br>|     commit2<br>|<br>* commit 230071204b0eb702e5519ad0cc21de8332e66749<br>  Author: xx &lt;xxxx@qq.com&gt;<br>  Date:   Mon Jun 5 15:25:16 2023 +0800<br><br>      commit1<br></code></pre></td></tr></table></figure>
+
+<p>当然commit3的内容也不会丢失，但是只能通过其hash值从objects中获取其内容   </p>
+<h1 id="合并冲突解决"><a href="#合并冲突解决" class="headerlink" title="合并冲突解决"></a>合并冲突解决</h1><p>初始情况下创建一个hello.txt，其内容为“This is a people”，提交修改，当前为master分支<br>然后在本次提交的基础上创建dog和cat分支，分别增加一行“This is a dog”和“This is a cat”  ，合并完dog分支后：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git merge dog<br>Updating 13aeef4..62ff449<br>Fast-forward<br> hello.txt | 1 +<br> 1 file changed, 1 insertion(+)<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate  --oneline<br>* 54da0a3 (<span class="hljs-built_in">cat</span>) commit3<br>| * 62ff449 (HEAD -&gt; master, dog) commit2<br>|/<br>* 13aeef4 commit1<br></code></pre></td></tr></table></figure>
+<p>可以看到此时出现了Faster-Foward，直接将主分支的head的位置移到了dog分支的head的位置<br>然后我们将cat分支合并到主分支</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ git merge <span class="hljs-built_in">cat</span><br>Auto-merging hello.txt<br>CONFLICT (content): Merge conflict <span class="hljs-keyword">in</span> hello.txt<br>Automatic merge failed; fix conflicts and <span class="hljs-keyword">then</span> commit the result.<br>```    <br><br>此时可以通过`git status`查看当前处于merge的状态，git会将这些信息记录在.git目录下的MERGE_HEAD、MERGE_MODE、MERGE_MSG、ORIG_HEAD中，  <br><br><br>```sh<br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate --oneline<br>* 54da0a3 (<span class="hljs-built_in">cat</span>) commit3<br>| * 62ff449 (HEAD -&gt; master, dog) commit2<br>|/<br>* 13aeef4 commit1<br>❯ <span class="hljs-built_in">cat</span> .git/HEAD<br>ref: refs/heads/master<br>❯ <span class="hljs-built_in">cat</span> .git/MERGE_HEAD<br>54da0a3f9b8a0aa26e124e83e37152edcc405985<br>❯ <span class="hljs-built_in">cat</span> .git/MERGE_MODE<br>❯ <span class="hljs-built_in">cat</span> .git/MERGE_MSG<br>Merge branch <span class="hljs-string">&#x27;cat&#x27;</span><br><br><span class="hljs-comment"># Conflicts:</span><br><span class="hljs-comment">#       hello.txt</span><br>❯ <span class="hljs-built_in">cat</span> .git/ORIG_HEAD<br>62ff449aff4ee3eb97c83a0c8212386ea3f646a2<br></code></pre></td></tr></table></figure>
+<p>此时修改hello.txt，然后再进行merge   </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs sh">❯ vim hello.txt<br>❯ git add hello.txt<br>❯ git commit -m <span class="hljs-string">&quot;merge cat&quot;</span><br>[master 768ca2e] merge <span class="hljs-built_in">cat</span><br>❯ git <span class="hljs-built_in">log</span> --all --graph --decorate --oneline<br>*   768ca2e (HEAD -&gt; master) merge <span class="hljs-built_in">cat</span><br>|\<br>| * 54da0a3 (<span class="hljs-built_in">cat</span>) commit3<br>* | 62ff449 (dog) commit2<br>|/<br>* 13aeef4 commit1<br>❯ git status<br>On branch master<br>nothing to commit, working tree clean<br>❯ tree .git<br>.git<br>├── COMMIT_EDITMSG<br>├── HEAD<br>├── ORIG_HEAD<br>├── branches<br>├── config<br>├── description<br>├── hooks<br>│   ├── applypatch-msg.sample<br>│   ├── commit-msg.sample<br>│   ├── fsmonitor-watchman.sample<br>│   ├── post-update.sample<br>│   ├── pre-applypatch.sample<br>│   ├── pre-commit.sample<br>│   ├── pre-merge-commit.sample<br>│   ├── pre-push.sample<br>│   ├── pre-rebase.sample<br>│   ├── pre-receive.sample<br>│   ├── prepare-commit-msg.sample<br>│   └── update.sample<br>├── index<br>├── info<br>│   └── exclude<br>├── logs<br>│   ├── HEAD<br>│   └── refs<br>│       └── heads<br>│           ├── <span class="hljs-built_in">cat</span><br>│           ├── dog<br>│           └── master<br>├── objects<br>│   ├── 13<br>│   │   └── aeef49091003b426a11235023d4c9140284816<br>│   ├── 54<br>│   │   └── da0a3f9b8a0aa26e124e83e37152edcc405985<br>│   ├── 62<br>│   │   └── ff449aff4ee3eb97c83a0c8212386ea3f646a2<br>│   ├── 76<br>│   │   └── 8ca2e67b6623cc46007fa48c0a4fcc6cb7d4e2<br>│   ├── 77<br>│   │   └── ac544a78f726064c47d0166b101720d2d92daf<br>│   ├── 8a<br>│   │   └── d2137201f31c329d152bae3f2c5bae76a26513<br>│   ├── 93<br>│   │   └── 0f1dee625037d46d242b248082b59dd7498932<br>│   ├── ad<br>│   │   └── 2dbc18897e81e31a5ea3363935c6cb21ed9eec<br>│   ├── be<br>│   │   └── 1a1cb5dcc3c87df1247fc0ba01d231d1d64fbd<br>│   ├── c1<br>│   │   └── b327e7bd84a9485b80eb76cd297c081458a3c8<br>│   ├── d2<br>│   │   └── 79b4e3ae26bd3401d410d25bebf636279f0016<br>│   ├── e0<br>│   │   └── e877d07652075465d2961463c5aaee477403fe<br>│   ├── e3<br>│   │   └── e88df6e9d4377dc49987ed93ec5adfe44cdee6<br>│   ├── info<br>│   └── pack<br>└── refs<br>    ├── heads<br>    │   ├── <span class="hljs-built_in">cat</span><br>    │   ├── dog<br>    │   └── master<br>    └── tags<br></code></pre></td></tr></table></figure>
+<p>此时和merge相关的文件已经消失</p>
+<h1 id="Trick"><a href="#Trick" class="headerlink" title="Trick"></a>Trick</h1><p><code>git log</code>有时会以vim的形式输出，可以调整：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">git config --global core.pager &quot;&quot;<br>git config --global core.pager &quot;vim&quot;<br></code></pre></td></tr></table></figure>
+
+
+<h1 id="Stash"><a href="#Stash" class="headerlink" title="Stash"></a>Stash</h1><p>本节内容来自chatGPT  </p>
+<p>stash就像一个栈一样存储内容，不与特定的分支绑定吗?  </p>
+<blockquote>
+<p>是的，你可以将 Git 中的 stash 视为一个栈（stack），其中可以存储多个储藏项。stash 不与特定的分支绑定，它是全局的，可在任何分支上应用和管理。<br>当你执行 git stash save 或简单地 git stash 命令时，Git 会将当前的工作目录和暂存区的修改保存到一个新的 stash 中，并将其添加到 stash 栈的顶部。每个 stash 都有一个唯一的标识符（stash@{n}），其中 n 是一个整数，表示 stash 的索引号，最新的 stash 具有索引号 0。<br>当你执行 git stash apply 或 git stash pop 命令时，Git 会从 stash 栈中取出最新的 stash，并将其应用到当前的分支上。这意味着 stash 不会自动关联到特定的分支，你可以在任何分支上选择应用 stash。<br>此外，你可以使用 git stash list 命令来查看当前的 stash 列表，显示所有的 stash 标识符和对应的描述信息。通过 git stash drop 命令可以删除指定的 stash，从 stash 栈中移除它。<br>总结来说，stash 是一个栈结构，可以存储多个储藏项，每个储藏项都是一个保存工作目录和暂存区修改的快照。stash 不与特定的分支绑定，你可以在任何分支上应用、管理和移除 stash。</p>
+</blockquote>
+<h1 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h1><ul>
+<li>rebase</li>
+<li>stash</li>
+<li>bisect ： 二分搜索</li>
+</ul>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" class="category-chain-item">课程笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/missing-semester/">#missing-semester</a>
+      
+        <a href="/tags/git/">#git</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>笔记-missing-semester-git</div>
+      <div>http://example.com/2023/06/04/笔记-missing-semester-git/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>巨型忍者</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/08/csapp-%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA%E5%92%8C%E6%93%8D%E4%BD%9C/" title="csapp-第二章-数据的表示和操作">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">csapp-第二章-数据的表示和操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/03/%E7%AC%94%E8%AE%B0-missing-semester-vim/" title="笔记-missing-semester-vim">
+                        <span class="hidden-mobile">笔记-missing-semester-vim</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","appKey":"cy0fljFxBVl5aUF28jEPkW6p","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

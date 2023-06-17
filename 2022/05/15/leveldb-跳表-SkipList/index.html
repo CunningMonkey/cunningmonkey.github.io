@@ -1,0 +1,752 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/wukong.png">
+  <link rel="icon" href="/img/wukong.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="巨型忍者">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 概述leveldb维护在内存中的表类型为MemTable，其本质是一个SkipList。其整体可以分为三部分，Iterator、Node、表的插入删除操作。 2. 跳表跳表是一种链表的变形，通过插入冗余节点来实现log(n)时间复杂度的查找。   2.1 NodeNode类型为跳表中的节点，其定义为： 123456789101112131415161718192021222324252627">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leveldb--跳表:SkipList">
+<meta property="og:url" content="http://example.com/2022/05/15/leveldb-%E8%B7%B3%E8%A1%A8-SkipList/index.html">
+<meta property="og:site_name" content="巨型忍者的blog">
+<meta property="og:description" content="1. 概述leveldb维护在内存中的表类型为MemTable，其本质是一个SkipList。其整体可以分为三部分，Iterator、Node、表的插入删除操作。 2. 跳表跳表是一种链表的变形，通过插入冗余节点来实现log(n)时间复杂度的查找。   2.1 NodeNode类型为跳表中的节点，其定义为： 123456789101112131415161718192021222324252627">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-15T08:56:35.000Z">
+<meta property="article:modified_time" content="2023-06-16T14:37:44.436Z">
+<meta property="article:author" content="巨型忍者">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>leveldb--跳表:SkipList - 巨型忍者的blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","app_key":"cy0fljFxBVl5aUF28jEPkW6p","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>巨型忍者的blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="leveldb--跳表:SkipList"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-15 16:56" pubdate>
+          2022年5月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">leveldb--跳表:SkipList</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>leveldb维护在内存中的表类型为MemTable，其本质是一个SkipList。<br>其整体可以分为三部分，Iterator、Node、表的插入删除操作。</p>
+<h1 id="2-跳表"><a href="#2-跳表" class="headerlink" title="2. 跳表"></a>2. 跳表</h1><p>跳表是一种链表的变形，通过插入冗余节点来实现log(n)时间复杂度的查找。  </p>
+<h2 id="2-1-Node"><a href="#2-1-Node" class="headerlink" title="2.1 Node"></a>2.1 Node</h2><p>Node类型为跳表中的节点，其定义为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">SkipList</span>&lt;Key, Comparator&gt;::Node &#123;<br>  <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">Node</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; k)</span> : key(k) &#123;</span>&#125;<br><br>  Key <span class="hljs-type">const</span> key;<br><br>  <span class="hljs-comment">// Accessors/mutators for links.  Wrapped in methods so we can</span><br>  <span class="hljs-comment">// add the appropriate barriers as necessary.</span><br>  <span class="hljs-function">Node* <span class="hljs-title">Next</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> </span>&#123;<br>    <span class="hljs-built_in">assert</span>(n &gt;= <span class="hljs-number">0</span>);<br>    <span class="hljs-comment">// Use an &#x27;acquire load&#x27; so that we observe a fully initialized</span><br>    <span class="hljs-comment">// version of the returned Node.</span><br>    <span class="hljs-keyword">return</span> next_[n].<span class="hljs-built_in">load</span>(std::memory_order_acquire);<br>  &#125;<br>  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SetNext</span><span class="hljs-params">(<span class="hljs-type">int</span> n, Node* x)</span> </span>&#123;<br>    <span class="hljs-built_in">assert</span>(n &gt;= <span class="hljs-number">0</span>);<br>    <span class="hljs-comment">// Use a &#x27;release store&#x27; so that anybody who reads through this</span><br>    <span class="hljs-comment">// pointer observes a fully initialized version of the inserted node.</span><br>    next_[n].<span class="hljs-built_in">store</span>(x, std::memory_order_release);<br>  &#125;<br><br>  <span class="hljs-comment">// No-barrier variants that can be safely used in a few locations.</span><br>  <span class="hljs-function">Node* <span class="hljs-title">NoBarrier_Next</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> </span>&#123;<br>    <span class="hljs-built_in">assert</span>(n &gt;= <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> next_[n].<span class="hljs-built_in">load</span>(std::memory_order_relaxed);<br>  &#125;<br>  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">NoBarrier_SetNext</span><span class="hljs-params">(<span class="hljs-type">int</span> n, Node* x)</span> </span>&#123;<br>    <span class="hljs-built_in">assert</span>(n &gt;= <span class="hljs-number">0</span>);<br>    next_[n].<span class="hljs-built_in">store</span>(x, std::memory_order_relaxed);<br>  &#125;<br><br> <span class="hljs-keyword">private</span>:<br>  <span class="hljs-comment">// Array of length equal to the node height.  next_[0] is lowest level link.</span><br>  std::atomic&lt;Node*&gt; next_[<span class="hljs-number">1</span>];<br>&#125;;<br><br></code></pre></td></tr></table></figure>
+<p>每个Node的对象都存储着当前列更高的节点的地址，Next(n)获得当前节点之上的第n个节点（即高度为n的节点）。SetNext(int n, Node* x)则是将高度为n处的节点设置为x。</p>
+<h2 id="2-2-跳表结构"><a href="#2-2-跳表结构" class="headerlink" title="2.2 跳表结构"></a>2.2 跳表结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SkipList</span> &#123;<br> <span class="hljs-keyword">private</span>:<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Node</span>;<br><br> <span class="hljs-keyword">public</span>:<br>  <span class="hljs-comment">// Create a new SkipList object that will use &quot;cmp&quot; for comparing keys,</span><br>  <span class="hljs-comment">// and will allocate memory using &quot;*arena&quot;.  Objects allocated in the arena</span><br>  <span class="hljs-comment">// must remain allocated for the lifetime of the skiplist object.</span><br>  <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">SkipList</span><span class="hljs-params">(Comparator cmp, Arena* arena)</span></span>;<br><br>  <span class="hljs-comment">// Insert key into the list.</span><br>  <span class="hljs-comment">// REQUIRES: nothing that compares equal to key is currently in the list.</span><br>  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Insert</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key)</span></span>;<br><br>  <span class="hljs-comment">// Returns true iff an entry that compares equal to key is in the list.</span><br>  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Contains</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key)</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// Iteration over the contents of a skip list</span><br>  <span class="hljs-keyword">class</span> <span class="hljs-title class_">Iterator</span> &#123;<br>	....<br> <br>  &#125;;<br><br> <span class="hljs-keyword">private</span>:<br>  <span class="hljs-keyword">enum</span> &#123; kMaxHeight = <span class="hljs-number">12</span> &#125;;<br><br>  <span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title">GetMaxHeight</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> max_height_.<span class="hljs-built_in">load</span>(std::memory_order_relaxed);<br>  &#125;<br><br>  <span class="hljs-function">Node* <span class="hljs-title">NewNode</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key, <span class="hljs-type">int</span> height)</span></span>;<br>  <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">RandomHeight</span><span class="hljs-params">()</span></span>;<br>  <span class="hljs-comment">// 判断两个key是否相等</span><br>  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Equal</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; a, <span class="hljs-type">const</span> Key&amp; b)</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> (<span class="hljs-built_in">compare_</span>(a, b) == <span class="hljs-number">0</span>); &#125;<br><br>  <span class="hljs-comment">// Return true if key is greater than the data stored in &quot;n&quot;</span><br>  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">KeyIsAfterNode</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key, Node* n)</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// Return the earliest node that comes at or after key.</span><br>  <span class="hljs-comment">// Return nullptr if there is no such node.</span><br>  <span class="hljs-comment">//</span><br>  <span class="hljs-comment">// If prev is non-null, fills prev[level] with pointer to previous</span><br>  <span class="hljs-comment">// node at &quot;level&quot; for every level in [0..max_height_-1].</span><br>  <span class="hljs-function">Node* <span class="hljs-title">FindGreaterOrEqual</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key, Node** prev)</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// Return the latest node with a key &lt; key.</span><br>  <span class="hljs-comment">// Return head_ if there is no such node.</span><br>  <span class="hljs-function">Node* <span class="hljs-title">FindLessThan</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; key)</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// Return the last node in the list.</span><br>  <span class="hljs-comment">// Return head_ if list is empty.</span><br>  <span class="hljs-function">Node* <span class="hljs-title">FindLast</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// Immutable after construction</span><br>  Comparator <span class="hljs-type">const</span> compare_;<br>  Arena* <span class="hljs-type">const</span> arena_;  <span class="hljs-comment">// Arena used for allocations of nodes</span><br><br>  Node* <span class="hljs-type">const</span> head_;<br><br>  <span class="hljs-comment">// Modified only by Insert().  Read racily by readers, but stale</span><br>  <span class="hljs-comment">// values are ok.</span><br>  std::atomic&lt;<span class="hljs-type">int</span>&gt; max_height_;  <span class="hljs-comment">// Height of the entire list</span><br><br>  <span class="hljs-comment">// Read/written only by Insert().</span><br>  Random rnd_;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-1-成员变量"><a href="#2-3-1-成员变量" class="headerlink" title="2.3.1 成员变量"></a>2.3.1 成员变量</h3><p>其成员变量都是私有变量，分别有：</p>
+<ol>
+<li>std::atomic<int> max_height_，当前跳表的最高的高度（列的长度），最大值为12。  </li>
+<li>Comparator const compare_，比较器，用于比较key的大小</li>
+<li>Arena* const arena_，内存分配器</li>
+<li>Node* const head，跳表的头节点</li>
+<li>Random rnd_，随机数生成器</li>
+</ol>
+<h3 id="2-3-2-私有方法"><a href="#2-3-2-私有方法" class="headerlink" title="2.3.2 私有方法"></a>2.3.2 私有方法</h3><p>1.创建新节点， NewNode(Key, height)<br>使用内存分配器，分配一个高度为height的节点的内存，使用该内存初始化一个节点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-keyword">typename</span> SkipList&lt;Key, Comparator&gt;::Node* SkipList&lt;Key, Comparator&gt;::<span class="hljs-built_in">NewNode</span>(<br>    <span class="hljs-type">const</span> Key&amp; key, <span class="hljs-type">int</span> height) &#123;<br>  <span class="hljs-type">char</span>* <span class="hljs-type">const</span> node_memory = arena_-&gt;<span class="hljs-built_in">AllocateAligned</span>(<br>      <span class="hljs-built_in">sizeof</span>(Node) + <span class="hljs-built_in">sizeof</span>(std::atomic&lt;Node*&gt;) * (height - <span class="hljs-number">1</span>));<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">new</span> (node_memory) <span class="hljs-built_in">Node</span>(key);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>产生随机高度的数值，RandomHeight()</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-type">int</span> SkipList&lt;Key, Comparator&gt;::<span class="hljs-built_in">RandomHeight</span>() &#123;<br>  <span class="hljs-comment">// Increase height with probability 1 in kBranching</span><br>  <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> kBranching = <span class="hljs-number">4</span>;<br>  <span class="hljs-type">int</span> height = <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">while</span> (height &lt; kMaxHeight &amp;&amp; rnd_.<span class="hljs-built_in">OneIn</span>(kBranching)) &#123;<br>    height++;<br>  &#125;<br>  <span class="hljs-built_in">assert</span>(height &gt; <span class="hljs-number">0</span>);<br>  <span class="hljs-built_in">assert</span>(height &lt;= kMaxHeight);<br>  <span class="hljs-keyword">return</span> height;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>判断key是否比节点的key更大<br>空指针表示的节点认为key无限大</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-type">bool</span> SkipList&lt;Key, Comparator&gt;::<span class="hljs-built_in">KeyIsAfterNode</span>(<span class="hljs-type">const</span> Key&amp; key, Node* n) <span class="hljs-type">const</span> &#123;<br>  <span class="hljs-comment">// null n is considered infinite</span><br>  <span class="hljs-keyword">return</span> (n != <span class="hljs-literal">nullptr</span>) &amp;&amp; (<span class="hljs-built_in">compare_</span>(n-&gt;key, key) &lt; <span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li></li>
+</ol>
+<h2 id="2-3-Iterator"><a href="#2-3-Iterator" class="headerlink" title="2.3 Iterator"></a>2.3 Iterator</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c++"> <span class="hljs-comment">// Iteration over the contents of a skip list</span><br> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Iterator</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>   <span class="hljs-comment">// 构造函数，list_ = list, node_ = nullptr</span><br>   <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">Iterator</span><span class="hljs-params">(<span class="hljs-type">const</span> SkipList* list)</span></span>;<br><br>   <span class="hljs-comment">// 当前位置是否存在节点: node_ == nullptr ?</span><br>   <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Valid</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br><br>   <span class="hljs-comment">// 返回当前位置节点的key: node_-&gt;key</span><br>   <span class="hljs-function"><span class="hljs-type">const</span> Key&amp; <span class="hljs-title">key</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br><br>   <span class="hljs-comment">// 迭代器前进一位: node_ = node_.Next(0)</span><br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Next</span><span class="hljs-params">()</span></span>;<br><br>   <span class="hljs-comment">// 迭代器后退一位</span><br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Prev</span><span class="hljs-params">()</span></span>;<br><br>   <span class="hljs-comment">// 到达第一个key &gt;= target的位置: node_ = list_-&gt;FindGreaterOrEqual(target, nullptr)</span><br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Seek</span><span class="hljs-params">(<span class="hljs-type">const</span> Key&amp; target)</span></span>;<br><br>   <span class="hljs-comment">// 回到第一个节点的位置: node_ = list-&gt;head_-&gt;Next(0)</span><br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SeekToFirst</span><span class="hljs-params">()</span></span>;<br><br>   <span class="hljs-comment">// 到达最后一个节点的位置</span><br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SeekToLast</span><span class="hljs-params">()</span></span>;<br><br>  <span class="hljs-keyword">private</span>:<br>   <span class="hljs-type">const</span> SkipList* list_;<br><span class="hljs-comment">// 当前所在位置的节点</span><br>   Node* node_;<br> &#125;;<br></code></pre></td></tr></table></figure>
+<p>Iterator定义了对跳表的迭代器操作。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> SkipList&lt;Key, Comparator&gt;::Iterator::<span class="hljs-built_in">Prev</span>() &#123;<br>  <span class="hljs-comment">// Instead of using explicit &quot;prev&quot; links, we just search for the</span><br>  <span class="hljs-comment">// last node that falls before key.</span><br>  <span class="hljs-built_in">assert</span>(<span class="hljs-built_in">Valid</span>());<br>  node_ = list_-&gt;<span class="hljs-built_in">FindLessThan</span>(node_-&gt;key);<br>  <span class="hljs-keyword">if</span> (node_ == list_-&gt;head_) &#123;<br>    node_ = <span class="hljs-literal">nullptr</span>;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Key, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Comparator</span>&gt;<br><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> SkipList&lt;Key, Comparator&gt;::Iterator::<span class="hljs-built_in">SeekToLast</span>() &#123;<br>  node_ = list_-&gt;<span class="hljs-built_in">FindLast</span>();<br>  <span class="hljs-keyword">if</span> (node_ == list_-&gt;head_) &#123;<br>    node_ = <span class="hljs-literal">nullptr</span>;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>leveldb--跳表:SkipList</div>
+      <div>http://example.com/2022/05/15/leveldb-跳表-SkipList/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>巨型忍者</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月15日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/28/%E9%80%9F%E5%86%99%E8%B5%84%E6%BA%90/" title="速写资源">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">速写资源</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/14/leveldb-%E5%86%99%E6%93%8D%E4%BD%9C-Memtable/" title="leveldb--写操作:Memtable">
+                        <span class="hidden-mobile">leveldb--写操作:Memtable</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","appKey":"cy0fljFxBVl5aUF28jEPkW6p","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

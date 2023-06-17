@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/wukong.png">
+  <link rel="icon" href="/img/wukong.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="巨型忍者">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="xv6中网卡驱动相关">
+<meta property="og:type" content="article">
+<meta property="og:title" content="e1000-driver">
+<meta property="og:url" content="http://example.com/2022/03/28/e1000-driver/index.html">
+<meta property="og:site_name" content="巨型忍者的blog">
+<meta property="og:description" content="xv6中网卡驱动相关">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-28T06:57:04.000Z">
+<meta property="article:modified_time" content="2023-06-16T14:37:44.436Z">
+<meta property="article:author" content="巨型忍者">
+<meta property="article:tag" content="驱动">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>e1000-driver - 巨型忍者的blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","app_key":"cy0fljFxBVl5aUF28jEPkW6p","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>巨型忍者的blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="e1000-driver"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-28 14:57" pubdate>
+          2022年3月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">e1000-driver</h1>
+            
+            <div class="markdown-body">
+              
+              <p><strong>【注】</strong> os不会主动发送arp报文，而是会发送udp报文，但路由器无法确定对方的物理地址就无法转发，路由器会发出arp请求报文，os接收到后会回应arp报文，告诉路由器自己的ip地址。<br>arp协议与进程完全无关，ip报文可能会剥离出udp报文后继续向上处理。</p>
+<h1 id="1-初始化"><a href="#1-初始化" class="headerlink" title="1.初始化"></a>1.初始化</h1><p>首先会关闭网卡的中断</p>
+<ol>
+<li>创建描述符数组以及buffer</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> TX_RING_SIZE 16</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">tx_desc</span> <span class="hljs-title">tx_ring</span>[<span class="hljs-title">TX_RING_SIZE</span>] __<span class="hljs-title">attribute__</span>((<span class="hljs-title">aligned</span>(16)));</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">tx_mbufs</span>[<span class="hljs-title">TX_RING_SIZE</span>];</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RX_RING_SIZE 16</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rx_desc</span> <span class="hljs-title">rx_ring</span>[<span class="hljs-title">RX_RING_SIZE</span>] __<span class="hljs-title">attribute__</span>((<span class="hljs-title">aligned</span>(16)));</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">rx_mbufs</span>[<span class="hljs-title">RX_RING_SIZE</span>];</span><br></code></pre></td></tr></table></figure>
+<ol start="2">
+<li>发送报文部分初始化</li>
+</ol>
+<p>清空描述符数组，将描述符数组的地址写入到e1000的寄存器中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">memset</span>(tx_ring, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(tx_ring));<br><span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; TX_RING_SIZE; i++) &#123;<br>  tx_ring[i].status = E1000_TXD_STAT_DD;<br>  tx_mbufs[i] = <span class="hljs-number">0</span>;<br>&#125;<br>regs[E1000_TDBAL] = (uint64) tx_ring;<br><span class="hljs-keyword">if</span>(<span class="hljs-keyword">sizeof</span>(tx_ring) % <span class="hljs-number">128</span> != <span class="hljs-number">0</span>)<br>  panic(<span class="hljs-string">&quot;e1000&quot;</span>);<br>regs[E1000_TDLEN] = <span class="hljs-keyword">sizeof</span>(tx_ring);<br>regs[E1000_TDH] = regs[E1000_TDT] = <span class="hljs-number">0</span>;<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>接收报文初始化<br>清空描述符数组，将描述符数组的地址写入到e1000的寄存器中，还要将rx_mbufs的地址写入到每一个对应的描述符中<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-built_in">memset</span>(rx_ring, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(rx_ring));<br><span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; RX_RING_SIZE; i++) &#123;<br>  rx_mbufs[i] = mbufalloc(<span class="hljs-number">0</span>);<br>  <span class="hljs-keyword">if</span> (!rx_mbufs[i])<br>    panic(<span class="hljs-string">&quot;e1000&quot;</span>);<br>  rx_ring[i].addr = (uint64) rx_mbufs[i]-&gt;head;<br>&#125;<br>regs[E1000_RDBAL] = (uint64) rx_ring;<br><span class="hljs-keyword">if</span>(<span class="hljs-keyword">sizeof</span>(rx_ring) % <span class="hljs-number">128</span> != <span class="hljs-number">0</span>)<br>  panic(<span class="hljs-string">&quot;e1000&quot;</span>);<br>regs[E1000_RDH] = <span class="hljs-number">0</span>;<br>regs[E1000_RDT] = RX_RING_SIZE - <span class="hljs-number">1</span>;<br>regs[E1000_RDLEN] = <span class="hljs-keyword">sizeof</span>(rx_ring);<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>然后会打开中断</p>
+<h1 id="2-上层应用"><a href="#2-上层应用" class="headerlink" title="2. 上层应用"></a>2. 上层应用</h1><h2 id="sock结构体"><a href="#sock结构体" class="headerlink" title="sock结构体"></a>sock结构体</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sock</span> &#123;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sock</span> *<span class="hljs-title">next</span>;</span> <span class="hljs-comment">// the next socket in the list</span><br>  uint32 raddr;      <span class="hljs-comment">// the remote IPv4 address</span><br>  uint16 lport;      <span class="hljs-comment">// the local UDP port number</span><br>  uint16 rport;      <span class="hljs-comment">// the remote UDP port number</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spinlock</span> <span class="hljs-title">lock</span>;</span> <span class="hljs-comment">// protects the rxq</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbufq</span> <span class="hljs-title">rxq</span>;</span>  <span class="hljs-comment">// a queue of packets waiting to be received</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>每个sock都会有一个packets队列，存储可以被sock接收的报文</p>
+<h2 id="mbuf结构体"><a href="#mbuf结构体" class="headerlink" title="mbuf结构体"></a>mbuf结构体</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> &#123;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span>  *<span class="hljs-title">next</span>;</span> <span class="hljs-comment">// the next mbuf in the chain</span><br>  <span class="hljs-type">char</span>         *head; <span class="hljs-comment">// the current start position of the buffer</span><br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> len;   <span class="hljs-comment">// the length of the buffer</span><br>  <span class="hljs-type">char</span>         buf[MBUF_SIZE]; <span class="hljs-comment">// the backing store</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<h2 id="2-1-connect"><a href="#2-1-connect" class="headerlink" title="2.1 connect"></a>2.1 connect</h2><p>xv6提供connect系统调用，传入目的ip地址、源端口、目的端口作为参数，返回socket的描述符</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span>(sockalloc(&amp;f, raddr, lport, rport) &lt; <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  <span class="hljs-keyword">if</span>((fd=fdalloc(f)) &lt; <span class="hljs-number">0</span>)&#123;<br>    fileclose(f);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125;<br></code></pre></td></tr></table></figure>
+<p>xv6会将已创建的所有的socket连成链表sockets<br>sockalloc会为传入的文件创建一个socket，然后会在sockets中查找是否存在重复的socket，如果存在则返回-1，否则将新申请的socket连在sockets的最前面</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">sockalloc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file **f, uint32 raddr, uint16 lport, uint16 rport)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sock</span> *<span class="hljs-title">si</span>, *<span class="hljs-title">pos</span>;</span><br><br>  si = <span class="hljs-number">0</span>;<br>  *f = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> ((*f = filealloc()) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">goto</span> bad;<br>  <span class="hljs-keyword">if</span> ((si = (<span class="hljs-keyword">struct</span> sock*)kalloc()) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">goto</span> bad;<br><br>  <span class="hljs-comment">// initialize objects</span><br>  si-&gt;raddr = raddr;<br>  si-&gt;lport = lport;<br>  si-&gt;rport = rport;<br>  initlock(&amp;si-&gt;lock, <span class="hljs-string">&quot;sock&quot;</span>);<br>  mbufq_init(&amp;si-&gt;rxq);<br>  (*f)-&gt;type = FD_SOCK;<br>  (*f)-&gt;readable = <span class="hljs-number">1</span>;<br>  (*f)-&gt;writable = <span class="hljs-number">1</span>;<br>  (*f)-&gt;sock = si;<br><br>  <span class="hljs-comment">// add to list of sockets</span><br>  acquire(&amp;lock);<br>  pos = sockets;<br>  <span class="hljs-keyword">while</span> (pos) &#123;<br>    <span class="hljs-keyword">if</span> (pos-&gt;raddr == raddr &amp;&amp;<br>        pos-&gt;lport == lport &amp;&amp;<br>	pos-&gt;rport == rport) &#123;<br>      release(&amp;lock);<br>      <span class="hljs-keyword">goto</span> bad;<br>    &#125;<br>    pos = pos-&gt;next;<br>  &#125;<br>  si-&gt;next = sockets;<br>  sockets = si;<br>  release(&amp;lock);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>bad:<br>  <span class="hljs-keyword">if</span> (si)<br>    kfree((<span class="hljs-type">char</span>*)si);<br>  <span class="hljs-keyword">if</span> (*f)<br>    fileclose(*f);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-read"><a href="#2-2-read" class="headerlink" title="2.2 read"></a>2.2 read</h2><p>sys_read –&gt; fileread –&gt; sockread<br>socketread会从sock的buffer(mbuf结构体)队列中读取首个报文，将buffer内容拷贝到用户态地址中，然后清空该buffer的内存</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">sockread</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> sock *si, uint64 addr, <span class="hljs-type">int</span> n)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc</span> *<span class="hljs-title">pr</span> =</span> myproc();<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">m</span>;</span><br>  <span class="hljs-type">int</span> len;<br><br>  acquire(&amp;si-&gt;lock);<br>  <span class="hljs-keyword">while</span> (mbufq_empty(&amp;si-&gt;rxq) &amp;&amp; !pr-&gt;killed) &#123;<br>    sleep(&amp;si-&gt;rxq, &amp;si-&gt;lock);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (pr-&gt;killed) &#123;<br>    release(&amp;si-&gt;lock);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125;<br>  m = mbufq_pophead(&amp;si-&gt;rxq);<br>  release(&amp;si-&gt;lock);<br><br>  len = m-&gt;len;<br>  <span class="hljs-keyword">if</span> (len &gt; n)<br>    len = n;<br>  <span class="hljs-keyword">if</span> (copyout(pr-&gt;pagetable, addr, m-&gt;head, len) == <span class="hljs-number">-1</span>) &#123;<br>    mbuffree(m);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125;<br>  mbuffree(m);<br>  <span class="hljs-keyword">return</span> len;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="2-3-write"><a href="#2-3-write" class="headerlink" title="2.3 write"></a>2.3 write</h2><p>sys_write –&gt; filewrite –&gt; sockwrite<br>sockwrite会创建一个报文的buffer(mbuf结构体)，将要发送的内容从用户地址拷入到mbuf中，然后调用net_tx_udp将该数据以udp报文的形式发送出去。<br>之后的发送流程则是依次包装报文内容:udp –&gt; ip –&gt; eth，最终调用net_tx_eth发送该报文<br>net_tx_eth会调用e1000_transmit将mbuf发送出去</p>
+<h2 id="arp-ip报文接收到后的处理"><a href="#arp-ip报文接收到后的处理" class="headerlink" title="arp, ip报文接收到后的处理"></a>arp, ip报文接收到后的处理</h2><h3 id="arp"><a href="#arp" class="headerlink" title="arp"></a>arp</h3><p>判断自己是否为目标的ip地址，如果不是，直接返回，如果是，则发送arp回复报文。net_tx_arp会包装一个arp回复报文(只有header)，然后调用net_tx_eth继续包装成eth报文然后发送给网卡。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// receives an ARP packet</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">net_rx_arp</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> mbuf *m)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">arp</span> *<span class="hljs-title">arphdr</span>;</span><br>  uint8 smac[ETHADDR_LEN];<br>  uint32 sip, tip;<br><br>  arphdr = mbufpullhdr(m, *arphdr);<br>  <span class="hljs-keyword">if</span> (!arphdr)<br>    <span class="hljs-keyword">goto</span> done;<br><br>  <span class="hljs-comment">// validate the ARP header</span><br>  <span class="hljs-keyword">if</span> (ntohs(arphdr-&gt;hrd) != ARP_HRD_ETHER ||<br>      ntohs(arphdr-&gt;pro) != ETHTYPE_IP ||<br>      arphdr-&gt;hln != ETHADDR_LEN ||<br>      arphdr-&gt;pln != <span class="hljs-keyword">sizeof</span>(uint32)) &#123;<br>    <span class="hljs-keyword">goto</span> done;<br>  &#125;<br><br>  <span class="hljs-comment">// only requests are supported so far</span><br>  <span class="hljs-comment">// check if our IP was solicited</span><br>  tip = ntohl(arphdr-&gt;tip); <span class="hljs-comment">// target IP address</span><br>  <span class="hljs-keyword">if</span> (ntohs(arphdr-&gt;op) != ARP_OP_REQUEST || tip != local_ip)<br>    <span class="hljs-keyword">goto</span> done;<br><br>  <span class="hljs-comment">// handle the ARP request</span><br>  memmove(smac, arphdr-&gt;sha, ETHADDR_LEN); <span class="hljs-comment">// sender&#x27;s ethernet address</span><br>  sip = ntohl(arphdr-&gt;sip); <span class="hljs-comment">// sender&#x27;s IP address (qemu&#x27;s slirp)</span><br>  net_tx_arp(ARP_OP_REPLY, smac, sip);<br><br>done:<br>  mbuffree(m);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="ip"><a href="#ip" class="headerlink" title="ip"></a>ip</h3><p>net_rx_ip会检查报文的合法性，然后将报文传递给net_rx_udp（因为只支持udp报文）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// receives an IP packet</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">net_rx_ip</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> mbuf *m)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ip</span> *<span class="hljs-title">iphdr</span>;</span><br>  uint16 len;<br><br>  iphdr = mbufpullhdr(m, *iphdr);<br>  <span class="hljs-keyword">if</span> (!iphdr)<br>	  <span class="hljs-keyword">goto</span> fail;<br><br>  <span class="hljs-comment">// check IP version and header len</span><br>  <span class="hljs-keyword">if</span> (iphdr-&gt;ip_vhl != ((<span class="hljs-number">4</span> &lt;&lt; <span class="hljs-number">4</span>) | (<span class="hljs-number">20</span> &gt;&gt; <span class="hljs-number">2</span>)))<br>    <span class="hljs-keyword">goto</span> fail;<br>  <span class="hljs-comment">// validate IP checksum</span><br>  <span class="hljs-keyword">if</span> (in_cksum((<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)iphdr, <span class="hljs-keyword">sizeof</span>(*iphdr)))<br>    <span class="hljs-keyword">goto</span> fail;<br>  <span class="hljs-comment">// can&#x27;t support fragmented IP packets</span><br>  <span class="hljs-keyword">if</span> (htons(iphdr-&gt;ip_off) != <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">goto</span> fail;<br>  <span class="hljs-comment">// is the packet addressed to us?</span><br>  <span class="hljs-keyword">if</span> (htonl(iphdr-&gt;ip_dst) != local_ip)<br>    <span class="hljs-keyword">goto</span> fail;<br>  <span class="hljs-comment">// can only support UDP</span><br>  <span class="hljs-keyword">if</span> (iphdr-&gt;ip_p != IPPROTO_UDP)<br>    <span class="hljs-keyword">goto</span> fail;<br><br>  len = ntohs(iphdr-&gt;ip_len) - <span class="hljs-keyword">sizeof</span>(*iphdr);<br>  net_rx_udp(m, len, iphdr);<br>  <span class="hljs-keyword">return</span>;<br><br>fail:<br>  mbuffree(m);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>udp报文与进程相关(sock)，解析出报文中的源ip地址、源端口、目标端口后，将该报文传递给sockrecvudp函数进行处理。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// receives a UDP packet</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">net_rx_udp</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> mbuf *m, uint16 len, <span class="hljs-keyword">struct</span> ip *iphdr)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">udp</span> *<span class="hljs-title">udphdr</span>;</span><br>  uint32 sip;<br>  uint16 sport, dport;<br><br><br>  udphdr = mbufpullhdr(m, *udphdr);<br>  <span class="hljs-keyword">if</span> (!udphdr)<br>    <span class="hljs-keyword">goto</span> fail;<br><br>  <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> validate UDP checksum</span><br><br>  <span class="hljs-comment">// validate lengths reported in headers</span><br>  <span class="hljs-keyword">if</span> (ntohs(udphdr-&gt;ulen) != len)<br>    <span class="hljs-keyword">goto</span> fail;<br>  len -= <span class="hljs-keyword">sizeof</span>(*udphdr);<br>  <span class="hljs-keyword">if</span> (len &gt; m-&gt;len)<br>    <span class="hljs-keyword">goto</span> fail;<br>  <span class="hljs-comment">// minimum packet size could be larger than the payload</span><br>  mbuftrim(m, m-&gt;len - len);<br><br>  <span class="hljs-comment">// parse the necessary fields</span><br>  sip = ntohl(iphdr-&gt;ip_src);<br>  sport = ntohs(udphdr-&gt;sport);<br>  dport = ntohs(udphdr-&gt;dport);<br>  sockrecvudp(m, sip, dport, sport);<br>  <span class="hljs-keyword">return</span>;<br><br>fail:<br>  mbuffree(m);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>sockrecvudp函数会遍历全局的sockets链表，寻找能匹配上的socket(ip、端口等)，找到后，会将报文push到该sock的mbuf队列的尾部。之后上层调用read时可以从该sock的mbuf队列中读取到该报文。</p>
+<h1 id="3-e1000报文的发送与接收"><a href="#3-e1000报文的发送与接收" class="headerlink" title="3. e1000报文的发送与接收"></a>3. e1000报文的发送与接收</h1><h2 id="报文的发送"><a href="#报文的发送" class="headerlink" title="报文的发送"></a>报文的发送</h2><p>e1000_transmit函数首先通过读取网卡寄存器获得下一个可以被“发送”的文件描述符的index，然后检查描述符是否可以使用来进行发送。然后清空用于发送的mbuf数组第index项的内存。然后修改描述符，将报文信息填入描述符中（待发送的报文的首地址（mbuf的head地址），长度等信息），然后将该mbuf填入到用于发送的mbuf数组中，然后修改网卡寄存器的值，将index的值加一（环形数组加一）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">e1000_transmit</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> mbuf *m)</span><br>&#123;<br>  acquire(&amp;e1000_lock);<br><br>  uint32 ind = regs[E1000_TDT];<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">tx_desc</span> *<span class="hljs-title">desc</span> =</span> &amp;tx_ring[ind];<br>  <span class="hljs-keyword">if</span>(!(desc-&gt;status &amp; E1000_TXD_STAT_DD)) &#123;<br>    release(&amp;e1000_lock);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125;<br>  <br>  <span class="hljs-keyword">if</span>(tx_mbufs[ind]) &#123;<br>    mbuffree(tx_mbufs[ind]);<br>    tx_mbufs[ind] = <span class="hljs-number">0</span>;<br>  &#125;<br><br>  desc-&gt;addr = (uint64)m-&gt;head;<br>  desc-&gt;length = m-&gt;len;<br>  desc-&gt;cmd = E1000_TXD_CMD_EOP | E1000_TXD_CMD_RS;<br>  tx_mbufs[ind] = m;<br><br>  regs[E1000_TDT] = (regs[E1000_TDT] + <span class="hljs-number">1</span>) % TX_RING_SIZE;<br>  <br>  release(&amp;e1000_lock);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="报文的接收"><a href="#报文的接收" class="headerlink" title="报文的接收"></a>报文的接收</h2><p>网卡收到一个完整的报文后会产生中断，经过中断处理函数进入到e1000_intr函数中，e1000_intr会首先修改e1000寄存器的值告诉它自己收到了该中断，只有这样e1000才会继续产生中断。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span><br><span class="hljs-title function_">e1000_intr</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-comment">// tell the e1000 we&#x27;ve seen this interrupt;</span><br>  <span class="hljs-comment">// without this the e1000 won&#x27;t raise any</span><br>  <span class="hljs-comment">// further interrupts.</span><br>  regs[E1000_ICR] = <span class="hljs-number">0xffffffff</span>;<br><br>  e1000_recv();<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>然后会调用e1000_recv函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">e1000_recv</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br><br>  <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) &#123;<br><br>    uint32 ind = (regs[E1000_RDT] + <span class="hljs-number">1</span>) % RX_RING_SIZE;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rx_desc</span> *<span class="hljs-title">desc</span> =</span> &amp;rx_ring[ind];<br>    <span class="hljs-keyword">if</span>(!(desc-&gt;status &amp; E1000_RXD_STAT_DD)) &#123;<br>      <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    rx_mbufs[ind]-&gt;len = desc-&gt;length;<br>    <br>    net_rx(rx_mbufs[ind]);<br><br>    rx_mbufs[ind] = mbufalloc(<span class="hljs-number">0</span>);<br><br>    desc-&gt;addr = (uint64)rx_mbufs[ind]-&gt;head;<br>    desc-&gt;status = <span class="hljs-number">0</span>;<br><br>    regs[E1000_RDT] = ind;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>e1000_recv函数会一直循环读取被网卡写入到rx_mbufs处的报文，然后将读到的报文(mbuf)传给net_rx函数。net_rx函数会将eth剥离，然后判断上一层的报文类型(ip or arp)，然后交给对应的接收函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// called by e1000 driver&#x27;s interrupt handler to deliver a packet to the</span><br><span class="hljs-comment">// networking stack</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">net_rx</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> mbuf *m)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">eth</span> *<span class="hljs-title">ethhdr</span>;</span><br>  uint16 type;<br><br>  ethhdr = mbufpullhdr(m, *ethhdr);<br>  <span class="hljs-keyword">if</span> (!ethhdr) &#123;<br>    mbuffree(m);<br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br><br>  type = ntohs(ethhdr-&gt;type);<br>  <span class="hljs-keyword">if</span> (type == ETHTYPE_IP)<br>    net_rx_ip(m);<br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type == ETHTYPE_ARP)<br>    net_rx_arp(m);<br>  <span class="hljs-keyword">else</span><br>    mbuffree(m);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OS/" class="category-chain-item">OS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%A9%B1%E5%8A%A8/">#驱动</a>
+      
+        <a href="/tags/xv6/">#xv6</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>e1000-driver</div>
+      <div>http://example.com/2022/03/28/e1000-driver/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>巨型忍者</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月28日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/28/xv6-page-fault/" title="xv6-page-fault">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">xv6-page-fault</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/28/xv6-locks/" title="xv6-locks">
+                        <span class="hidden-mobile">xv6-locks</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Yhwa5XK8gB42DSRTY3XAHaLP-gzGzoHsz","appKey":"cy0fljFxBVl5aUF28jEPkW6p","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
